@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, PlayCircle, Layers, ChevronRight } from 'lucide-react';
+import { ChevronLeft, PlayCircle, Layers, ChevronRight, BookOpen } from 'lucide-react';
 import { curriculumService, type Discipline } from '../api/curriculumService';
 
-// Helper description matching CourseExplorer
 const getCourseDescription = (name: string) => {
   const descriptions: Record<string, string> = {
     'Anatomy': 'Core human structure and systems',
@@ -22,6 +21,10 @@ const DisciplineExplorer: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
 
+  const [setupModalOpen, setSetupModalOpen] = useState(false);
+  const [selectedContext, setSelectedContext] = useState<{type: 'course'|'discipline', id: string} | null>(null);
+  const [questionCount, setQuestionCount] = useState(20);
+
   const { data: courses } = useQuery({
     queryKey: ['courses'],
     queryFn: () => curriculumService.getCourses(),
@@ -34,8 +37,22 @@ const DisciplineExplorer: React.FC = () => {
     enabled: !!courseId,
   });
 
+  const handleStartSetup = (type: 'course' | 'discipline', id: string) => {
+    setSelectedContext({ type, id });
+    setSetupModalOpen(true);
+  };
+
+  const executePracticeFlow = () => {
+    if (!selectedContext) return;
+    const queryParam = selectedContext.type === 'course' 
+      ? `course=${selectedContext.id}` 
+      : `discipline=${selectedContext.id}`;
+    
+    navigate(`/practice?${queryParam}&count=${questionCount}`);
+  };
+
   return (
-    <div className="space-y-8 animate-fade-in pb-12 max-w-4xl mx-auto">
+    <div className="space-y-8 animate-fade-in pb-12 max-w-4xl mx-auto relative">
       {/* 1. BACK CONTROLS */}
       <button 
         onClick={() => navigate('/courses')}
@@ -57,7 +74,7 @@ const DisciplineExplorer: React.FC = () => {
 
       {/* 3. BROAD COURSE PRACTICE BLOCK */}
       <button 
-        onClick={() => navigate('/practice')} 
+        onClick={() => handleStartSetup('course', currentCourse?.id || '')} 
         className="w-full glass bg-gradient-to-br from-primary-600 to-sky-500 p-6 md:p-8 rounded-3xl text-left flex items-center justify-between group overflow-hidden relative shadow-lg shadow-primary-500/20 hover:scale-[1.01] hover:shadow-primary-500/30 transition-all border border-primary-400/50"
       >
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none group-hover:scale-110 transition-transform duration-700" />
@@ -67,7 +84,7 @@ const DisciplineExplorer: React.FC = () => {
             <PlayCircle size={32} />
           </div>
           <div>
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Start Global Practice</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-1">Practice This Course</h2>
             <p className="text-sm text-primary-100 font-medium">Mix questions from all disciplines across {currentCourse?.name}</p>
           </div>
         </div>
@@ -93,7 +110,7 @@ const DisciplineExplorer: React.FC = () => {
              {disciplines?.map((discipline: Discipline) => (
                <div 
                  key={discipline.id}
-                 onClick={() => navigate(`/practice?discipline=${discipline.id}`)}
+                 onClick={() => handleStartSetup('discipline', discipline.id)}
                  className="bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 p-4 md:p-5 rounded-[1.25rem] flex items-center justify-between group hover:border-primary-500 hover:shadow-md hover:shadow-primary-500/5 cursor-pointer transition-all active:scale-95"
                >
                  <div className="flex items-center gap-4 min-w-0 pr-4">
@@ -110,6 +127,51 @@ const DisciplineExplorer: React.FC = () => {
            </div>
          )}
       </div>
+
+      {/* 5. PRE-PRACTICE SETUP MODAL */}
+      {setupModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center xl:items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => setSetupModalOpen(false)} />
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden animate-slide-up border border-gray-100 dark:border-slate-800">
+             <div className="p-8 md:p-10">
+               
+               <div className="w-16 h-16 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-2xl flex items-center justify-center mb-6 border border-primary-100 dark:border-primary-900/30">
+                 <BookOpen size={32} />
+               </div>
+               
+               <h2 className="text-2xl font-lexend font-bold text-slate-800 dark:text-white mb-2">Start Practice Session</h2>
+               <p className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-8">Prepare your revision session before you begin.</p>
+               
+               <div className="space-y-4 mb-8">
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Number of Questions</h3>
+                 <div className="grid grid-cols-2 gap-3">
+                   {[10, 20, 30, 50].map(count => (
+                     <button 
+                       key={count}
+                       onClick={() => setQuestionCount(count)}
+                       className={`py-3.5 px-4 rounded-xl font-bold transition-all border-2 text-sm ${
+                         questionCount === count 
+                           ? 'bg-primary-50 dark:bg-primary-500/10 border-primary-500 text-primary-700 dark:text-primary-400 shadow-sm' 
+                           : 'bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-700'
+                       }`}
+                     >
+                       {count} Questions
+                     </button>
+                   ))}
+                 </div>
+               </div>
+               
+               <button 
+                 onClick={executePracticeFlow}
+                 className="w-full btn-primary py-4 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-primary-600/20 active:scale-95 transition-transform text-base"
+               >
+                 Start Practice
+               </button>
+             </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
