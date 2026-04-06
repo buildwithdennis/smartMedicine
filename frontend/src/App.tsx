@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Layouts
@@ -89,9 +89,22 @@ const App: React.FC = () => {
             <Route path="bookmarks" element={<QuestionBank />} />
             <Route path="mistakes" element={<MistakeBank />} />
             <Route path="analytics" element={<AnalyticsDashboard />} />
+            <Route path="profile" element={<div>Profile Settings</div>} />
+          </Route>
+
+          {/* Full-Screen Immersive Routes */}
+          <Route 
+            path="/"
+            element={
+              <ProtectedRoute>
+                <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-inter">
+                  <Outlet />
+                </div>
+              </ProtectedRoute>
+            }
+          >
             <Route path="practice" element={<PracticeSession />} />
             <Route path="results/:sessionId" element={<SessionResults />} />
-            <Route path="profile" element={<div>Profile Settings</div>} />
           </Route>
 
           {/* Admin Routes */}

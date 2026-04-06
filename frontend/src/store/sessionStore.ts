@@ -28,13 +28,22 @@ export const useSessionStore = create<SessionState>()(
       answers: {},
       startTime: null,
 
-      setSession: (session, questions) => set({ 
-        activeSession: session, 
-        questions, 
-        currentQuestionIndex: 0,
-        answers: {},
-        startTime: Date.now()
-      }),
+      setSession: (session, questions) => {
+        const answersRecord: Record<string, string> = {};
+        if (session.answers) {
+          session.answers.forEach(a => {
+            answersRecord[a.question] = a.selected_option;
+          });
+        }
+        
+        set({ 
+          activeSession: session, 
+          questions, 
+          currentQuestionIndex: 0,
+          answers: answersRecord,
+          startTime: Date.now()
+        });
+      },
 
       nextQuestion: () => set((state) => ({ 
         currentQuestionIndex: Math.min(state.currentQuestionIndex + 1, state.questions.length - 1) 
