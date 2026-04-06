@@ -31,8 +31,8 @@ const DashboardLayout: React.FC = () => {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { name: 'Courses', icon: BookOpen, path: '/courses' },
     { name: 'Exams', icon: History, path: '/exams' },
-    { name: 'Bookmarks', icon: Bookmark, path: '/bookmarks' },
-    { name: 'Analytics', icon: BarChart3, path: '/analytics' },
+    // { name: 'Bookmarks', icon: Bookmark, path: '/bookmarks' },
+    // { name: 'Analytics', icon: BarChart3, path: '/analytics' },
   ];
 
   return (

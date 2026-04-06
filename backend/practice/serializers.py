@@ -24,7 +24,7 @@ class SessionStartSerializer(serializers.Serializer):
     level_id = serializers.UUIDField(required=False)
     course_id = serializers.UUIDField(required=False)
     discipline_id = serializers.UUIDField(required=False)
-    count = serializers.IntegerField(default=10, min_value=1, max_value=100)
+    count = serializers.IntegerField(default=10, min_value=1, max_value=200)
 
 class SessionDetailSerializer(serializers.ModelSerializer):
     answers = StudentAnswerSerializer(many=True, read_only=True)

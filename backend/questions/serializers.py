@@ -8,11 +8,13 @@ class QuestionOptionSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
     options = QuestionOptionSerializer(many=True)
+    course_name = serializers.ReadOnlyField(source='course.name')
+    discipline_name = serializers.ReadOnlyField(source='discipline.name')
 
     class Meta:
         model = Question
         fields = (
-            'id', 'level', 'course', 'discipline', 
+            'id', 'level', 'course', 'course_name', 'discipline', 'discipline_name',
             'text', 'explanation', 'question_type', 
             'difficulty', 'status', 'source_year', 'options'
         )

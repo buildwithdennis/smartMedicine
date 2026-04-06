@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/v1/curriculum/', include('curriculum.urls')),
     path('api/v1/questions/', include('questions.urls')),
     path('api/v1/practice/', include('practice.urls')),
+    path('api/v1/admin/', include('core.admin_urls')),
 ]

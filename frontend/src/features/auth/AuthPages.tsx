@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuthStore } from '../../store/authStore';
-import { ArrowRight, Mail, Lock, User, Hash } from 'lucide-react';
+import { ArrowRight, Mail, Lock, User } from 'lucide-react';
 import api from '../../api/axios';
 
 const loginSchema = z.object({
@@ -45,7 +45,15 @@ export const LoginPage: React.FC = () => {
       });
 
       setAuth(userResponse.data, access);
-      navigate('/dashboard');
+      
+      const user = userResponse.data;
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (!user.registration_id) {
+        navigate('/auth/onboarding');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       console.error('Login failed', error);
       alert('Authentication failed. Check your credentials.');
@@ -124,7 +132,13 @@ export const RegisterPage: React.FC = () => {
       });
 
       setAuth(userResponse.data, access);
-      navigate('/auth/onboarding');
+      
+      const user = userResponse.data;
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/auth/onboarding');
+      }
       
     } catch (error: any) {
       console.error('Registration failed', error);
