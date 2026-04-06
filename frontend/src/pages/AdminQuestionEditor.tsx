@@ -93,6 +93,19 @@ const AdminQuestionEditor: React.FC = () => {
     }
   }, [questionData, setValue, isEdit]);
 
+  const selectedLevel = watch('level');
+  const selectedCourse = watch('course');
+
+  const filteredCourses = React.useMemo(() => {
+    if (!selectedLevel || !courses) return [];
+    return courses.filter(c => c.level === selectedLevel);
+  }, [selectedLevel, courses]);
+
+  const filteredDisciplines = React.useMemo(() => {
+    if (!selectedCourse || !disciplines) return [];
+    return disciplines.filter(d => d.course === selectedCourse);
+  }, [selectedCourse, disciplines]);
+
   const mutation = useMutation({
     mutationFn: (data: any) => isEdit ? api.put(`/questions/${id}/`, data) : api.post('/questions/', data),
     onSuccess: () => {
@@ -113,14 +126,14 @@ const AdminQuestionEditor: React.FC = () => {
           <ChevronLeft size={20} />
         </button>
         <div>
-          <h2 className="text-3xl font-lexend font-bold">{isEdit ? 'Edit Tactical Question' : 'Deploy New Question'}</h2>
-          <p className="text-slate-500 font-medium tracking-tight">Technical configuration and validation of academic content.</p>
+          <h2 className="text-3xl font-lexend font-bold tracking-tight">{isEdit ? 'Edit Tactical Question' : 'Deploy New Question'}</h2>
+          <p className="text-slate-500 font-medium tracking-tight mt-1">Technical configuration and validation of academic content.</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <div className="glass p-10 rounded-[2.5rem] space-y-6">
+          <div className="glass p-10 rounded-[3rem] space-y-6 shadow-sm border border-white/40 dark:border-slate-800">
             <h3 className="font-lexend font-bold text-lg flex items-center gap-3">
               <span className="w-8 h-8 rounded-xl bg-primary-600/10 text-primary-600 flex items-center justify-center"><BookOpen size={18} /></span>
               Question Payload
@@ -149,7 +162,7 @@ const AdminQuestionEditor: React.FC = () => {
             </div>
           </div>
 
-          <div className="glass p-10 rounded-[2.5rem] space-y-6">
+          <div className="glass p-10 rounded-[3rem] space-y-6 shadow-sm border border-white/40 dark:border-slate-800">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-lexend font-bold text-lg flex items-center gap-3">
                 <span className="w-8 h-8 rounded-xl bg-emerald-600/10 text-emerald-600 flex items-center justify-center"><Target size={18} /></span>
@@ -158,7 +171,7 @@ const AdminQuestionEditor: React.FC = () => {
               <button 
                 type="button" 
                 onClick={() => append({ text: '', is_correct: false, order: fields.length })}
-                className="px-4 py-2 bg-emerald-600/10 text-emerald-600 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-600/20 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-emerald-600 text-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-600/20"
               >
                 <Plus size={14} /> Add Vector
               </button>
@@ -170,17 +183,17 @@ const AdminQuestionEditor: React.FC = () => {
                   <div className="flex-1 relative">
                     <input 
                       {...register(`options.${index}.text` as const)}
-                      className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium"
+                      className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-2xl py-5 px-6 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-medium"
                       placeholder={`Option Vector ${index + 1}`}
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
-                      <label className="flex items-center gap-2 cursor-pointer">
+                      <label className="flex items-center gap-2 cursor-pointer group/label">
                         <input 
                           type="checkbox" 
                           {...register(`options.${index}.is_correct` as const)}
-                          className="w-5 h-5 rounded-lg border-slate-300 text-emerald-600 focus:ring-emerald-500/20 cursor-pointer"
+                          className="w-6 h-6 rounded-lg border-2 border-slate-200 text-emerald-600 focus:ring-emerald-500/20 cursor-pointer transition-all"
                         />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-focus-within:text-emerald-500">Correct</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-focus-within:text-emerald-500 group-hover/label:text-slate-600 transition-colors">Correct</span>
                       </label>
                     </div>
                   </div>
@@ -189,28 +202,33 @@ const AdminQuestionEditor: React.FC = () => {
                     onClick={() => remove(index)}
                     className="p-3 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={24} />
                   </button>
                 </div>
               ))}
             </div>
-            {errors.options && <p className="text-rose-500 text-xs font-bold mt-2 ml-4">{errors.options.message}</p>}
+            {errors.options && <p className="text-rose-500 text-xs font-bold mt-4 ml-4 tracking-tight">{errors.options.message}</p>}
           </div>
         </div>
 
         <div className="space-y-8">
-          <div className="glass p-10 rounded-[2.5rem] space-y-6">
+          <div className="glass p-10 rounded-[3rem] space-y-6 shadow-sm border border-white/40 dark:border-slate-800">
             <h3 className="font-lexend font-bold text-lg flex items-center gap-3">
               <span className="w-8 h-8 rounded-xl bg-amber-600/10 text-amber-600 flex items-center justify-center"><Layers size={18} /></span>
-              Metadata
+              Metadata Vector
             </h3>
             
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Academic Level</label>
                 <select 
                   {...register('level')}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl py-4 px-5 text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none appearance-none"
+                  onChange={(e) => {
+                    register('level').onChange(e);
+                    setValue('course', '');
+                    setValue('discipline', '');
+                  }}
+                  className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-2xl py-4.5 px-5 text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none appearance-none cursor-pointer"
                 >
                   <option value="">Select Level...</option>
                   {levels?.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -221,10 +239,15 @@ const AdminQuestionEditor: React.FC = () => {
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Course Sync</label>
                 <select 
                   {...register('course')}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl py-4 px-5 text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none appearance-none"
+                  disabled={!selectedLevel}
+                  onChange={(e) => {
+                    register('course').onChange(e);
+                    setValue('discipline', '');
+                  }}
+                  className={`w-full bg-slate-50 dark:bg-slate-900 border-none rounded-2xl py-4.5 px-5 text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none appearance-none cursor-pointer transition-opacity ${!selectedLevel ? 'opacity-40 cursor-not-allowed' : ''}`}
                 >
                   <option value="">Select Course...</option>
-                  {courses?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {filteredCourses?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
 
@@ -232,10 +255,11 @@ const AdminQuestionEditor: React.FC = () => {
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Discipline Vector</label>
                 <select 
                   {...register('discipline')}
-                  className="w-full bg-slate-50 dark:bg-slate-900 border-none rounded-xl py-4 px-5 text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none appearance-none"
+                  disabled={!selectedCourse}
+                  className={`w-full bg-slate-50 dark:bg-slate-900 border-none rounded-2xl py-4.5 px-5 text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none appearance-none cursor-pointer transition-opacity ${!selectedCourse ? 'opacity-40 cursor-not-allowed' : ''}`}
                 >
                   <option value="">Select Discipline...</option>
-                  {disciplines?.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  {filteredDisciplines?.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 </select>
               </div>
             </div>

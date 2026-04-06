@@ -48,7 +48,14 @@ const adminService = {
   },
 
   // Extension points for curriculum and questions
-  getQuestions: async (params?: any) => {
+  getQuestions: async (params?: { 
+    page?: number; 
+    search?: string; 
+    course?: string; 
+    status?: string;
+    discipline?: string;
+    level?: string;
+  }) => {
     const response = await api.get('/questions/', { params });
     return response.data;
   },
@@ -90,6 +97,10 @@ const adminService = {
   },
   deleteDiscipline: async (id: string) => {
     await api.delete(`/curriculum/disciplines/${id}/`);
+  },
+
+  deleteQuestion: async (id: string) => {
+    await api.delete(`/questions/${id}/`);
   },
 
   getCurriculumStructure: async () => {
